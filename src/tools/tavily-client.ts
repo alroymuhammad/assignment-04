@@ -1,6 +1,6 @@
 import { tavily } from "@tavily/core";
 
-const tavilyKey = process.env.TAVILY_API_KEY;
+const tavilyKey = process.env.TAVILY_API_KEY!;
 
 if (!tavilyKey) {
     throw new Error(
