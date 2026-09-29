@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "pnpm with-env tsx src/index.ts",
+        "eval-contain": "pnpm with-env tsx src/evals/contain.ts",
         "typecheck": "tsc --noEmit",
         "with-env": "dotenv run -f .env --",
         "dev": "pnpm tsx src/index.ts",
