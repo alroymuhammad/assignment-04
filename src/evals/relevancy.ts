@@ -1,16 +1,17 @@
-import { contains, runEvalCli } from "@anvia/core/evals";
+import { answerRelevancy, runEvalCli } from "@anvia/core/evals";
 import { createAgent } from "../agents.js";
 import { sandbox } from "../sandbox.js";
-import { containCases } from "./contain-cases.js";
+import { relevancyCases } from "./relevancy-cases.js";}
 import { lens } from "../observer.js";
+import { getModel } from "../models.js";
 
 const agent = createAgent();
 
 const evalResult = await runEvalCli({
-    name: "contain-check",
-    cases: containCases,
+    name: "relevancy-check",
+    cases: relevancyCases,
     target: (input: string) => agent.generate({ prompt: input }),
-    metrics: [contains()],
+    metrics: [answerRelevancy({model: getModel("glm-5.3-flash"), threshold: 0.8})],
     reporters: [lens.evalReporter({ includePayloads: true })],
 });
 

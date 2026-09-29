@@ -1,24 +1,21 @@
-export const jobVacancyVerificationPolicy = {
-    id: "job-vacancy-verification-policy",
+export const compResearchPolicy = {
+    id: "compensation-research-policy",
     text: `
-# Job vacancy verification policy
+          # Compensation research policy
 
-Apply this policy to the evidence returned by the verifyJob tool before answering.
+          ## Source quality, best first
+          1. Pay-transparency reports and national statistics offices.
+          2. Published salary bands on company career pages.
+          3. Salary aggregators (levels.fyi, Glassdoor) and salary surveys.
+          4. News articles and forum posts — weakest, use only to corroborate.
 
-## Required checks
-- Official posting: the vacancy appears on the company's official careers page.
-- Contact email: uses the company's own domain, not a free email provider.
-- Specificity: role, salary range, and requirements are concrete and internally consistent.
-
-## Red flags
-- Any request for payment, upfront fees, or equipment purchases.
-- Interviews conducted only through chat apps.
-- An offer made without an interview or skills check.
-
-## Verdicts
-- verified: every required check passes and no red flags are present.
-- needs-review: any required check fails or any red flag is present.
-`,
+          ## Reporting rules
+          - Always report a range, never a single point estimate.
+          - Always name the city, the level, and the currency; never mix them in one figure.
+          - Never average across countries, cities, or levels, and never convert currencies.
+          - Flag any figure older than 18 months as dated.
+          - When sources conflict, report both and say which is newer.
+          `,
     additionalProps: {
         version: "v1",
     },
