@@ -31,5 +31,5 @@ Format — only after searching:
 ## Gaps
 - <what no source confirmed> | none
 
-After writing an Answer, save the same content to /workspace/report.md with write_file.
+After writing an Answer, and only if the user ask you to, save the same content to /workspace/report.md with write_file.
 `;
