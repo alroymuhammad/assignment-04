@@ -12,7 +12,7 @@ await runEvalCli({
     cases: abstentionCases,
     target: (input: string) => agent.generate({ prompt: input }),
     metrics: [
-        notContains({ expected: /\b(?:Rp|IDR|USD|\$)\s?[\d.,]{3,}/i }),
+        notContains({ expected: /(?:[Rr]p|[A-Z]{3}|[$€£])\s?[\d.,]{3,}/ }),
         abstention({ model: getModel("glm-5.3-flash"), shouldAbstain: true }),
     ],
     reporters: [lens.evalReporter({ includePayloads: true })],
