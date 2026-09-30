@@ -6,14 +6,26 @@ import { lens } from "../observer.js";
 
 const agent = createAgent();
 
-const evalResult = await runEvalCli({
-    name: "correctness-check",
-    cases: containCases,
-    target: (input: string) => agent.generate({ prompt: input }),
-    metrics: [contains({ name: "correctness" })],
-    reporters: [lens.evalReporter({ includePayloads: true })],
-});
+try {
+    const evalResult = await runEvalCli({
+        name: "correctness-check",
+        cases: containCases,
+        target: (input: string) => agent.generate({ prompt: input }),
+        metrics: [contains({ name: "correctness" })],
+        reporters: [
+            lens.evalReporter({
+                includePayloads: true,
+                includeMetadata: true,
+                onMissingTrace: "throw",
+            }),
+        ],
+        exitCode: true,
+        reporterErrorPolicy: "throw",
+    });
 
-console.log(evalResult.results);
-await sandbox.destroy();
-lens.flush();
+    console.log(evalResult.results);
+    await lens.flush();
+} finally {
+    await sandbox.destroy();
+    await lens.close();
+}

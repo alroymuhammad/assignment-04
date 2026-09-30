@@ -1,17 +1,17 @@
 export const containCases = [
     {
-        id: "1-jakarta",
+        id: "jakarta-range",
         input: "What salary range can I expect as a Senior Backend Engineer with 5 years of experience in Jakarta, Indonesia?",
-        expected: /\b(?:IDR|Rp)\s?[\d.,]+\s?[-–]\s?[\d.,]+/,
+        expected: /\bIDR [\d.,]+ - [\d.,]+ per (?:month|year)/,
     },
     {
-        id: "2-germany",
+        id: "germany-range",
         input: "What salary range can I expect as a Senior Backend Engineer with 5 years of experience in Germany?",
-        expected: /(?:\bEUR|€)\s?[\d.,]+\s?[-–]\s?[\d.,]+/,
+        expected: /\bEUR [\d.,]+ - [\d.,]+ per (?:month|year)/,
     },
     {
-        id: "3-uk",
+        id: "uk-range",
         input: "What salary range can I expect as a Senior Backend Engineer with 5 years of experience in the UK?",
-        expected: /(?:\bGBP|£)\s?[\d.,]+\s?[-–]\s?[\d.,]+/,
+        expected: /\bGBP [\d.,]+ - [\d.,]+ per (?:month|year)/,
     },
 ];
