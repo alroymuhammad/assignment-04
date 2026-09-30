@@ -63,29 +63,46 @@ lens/                   # Docker Compose stack for the Lens trace/eval backend
 
 ## Setup
 
+Prerequisites:
+
+- **Node.js 24+** — `@anvia/lens` declares `engines.node >= 24`.
+- **pnpm** — 11.24.0 is pinned by the `packageManager` field in `package.json`.
+- **Docker** — `src/sandbox.ts` pulls `ghcr.io/astral-sh/uv:alpine` and creates an ephemeral workspace when the agent starts.
+
 ```bash
 pnpm install
-cp .env.example .env   # then fill in the keys
+cp .env.example .env   # then fill in the keys below
 ```
 
-Required in `.env`:
+### Configure the keys
 
-| Variable | Purpose |
-| --- | --- |
-| `OPENAI_API_KEY` | Model access (throws at import if unset) |
-| `OPENAI_BASE_URL` | Optional custom endpoint |
-| `TAVILY_API_KEY` | Web search (throws at import if unset) |
-| `ANVIA_LENS_BASE_URL` | Lens endpoint for traces/evals |
-| `ANVIA_LENS_PUBLIC_KEY` / `ANVIA_LENS_SECRET_KEY` | Lens credentials |
-| `ANVIA_LENS_SERVICE_NAME` | Lens service label |
+`.env` is gitignored — never commit real keys. The clients read their variables at import time, so a missing key fails `pnpm start` immediately instead of on the first request.
 
-Docker must be running: `src/sandbox.ts` pulls `ghcr.io/astral-sh/uv:alpine` and creates an ephemeral workspace at startup.
+| Variable | Required | Value |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | yes | Key for the model endpoint. `src/models.ts` throws at import if unset. |
+| `OPENAI_BASE_URL` | no | Base URL of a custom OpenAI-compatible gateway (e.g. `https://gateway.example.com/v1`). Leave blank to use the OpenAI default. |
+| `TAVILY_API_KEY` | yes | Tavily API key from <https://app.tavily.com>; powers the `searchWeb` tool. `src/tools/tavily-client.ts` throws at import if unset. |
+| `ANVIA_LENS_BASE_URL` | yes | Lens base URL: `http://localhost` for the bundled stack below, or your hosted Lens URL. |
+| `ANVIA_LENS_PUBLIC_KEY` | yes | `pk-lens-…` ingestion key from Project settings → Ingestion keys. |
+| `ANVIA_LENS_SECRET_KEY` | yes | `sk-lens-…` secret issued alongside the public key. |
+| `ANVIA_LENS_SERVICE_NAME` | no | Service label on traces. `src/observer.ts` already passes `support-agent`, so this only acts as a fallback. |
 
-Optional — run the Lens backend locally:
+Model ids are not environment variables: the agent defaults to `gpt-6-luna` (`src/models.ts`) and the eval judges call `glm-5.3-flash` (`src/evals/*.ts`). Point `OPENAI_BASE_URL` at a gateway that serves those ids, or change the ids in those files.
+
+### Run the Lens backend locally (optional)
+
+The `lens/` folder is a Docker Compose stack (web, API, worker, Postgres, ClickHouse, Redis). It needs its own `lens/.env` with secrets, which is not committed:
 
 ```bash
-cd lens && docker compose up -d
+cd lens
+cat > .env <<EOF
+PUBLIC_APP_URL=http://localhost
+WEB_ORIGIN=http://localhost
+docker compose up -d
 ```
+
+Open <http://localhost>, create an account and a project, then copy the project's ingestion keys into the root `.env` as `ANVIA_LENS_PUBLIC_KEY` / `ANVIA_LENS_SECRET_KEY` and set `ANVIA_LENS_BASE_URL=http://localhost`. If you already run a Lens instance, skip this step and point the three connection variables at it.
 
 ## Usage
 
