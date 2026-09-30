@@ -8,9 +8,6 @@ import { getModel } from "../models.js";
 
 const agent = createAgent();
 
-// Konteks = hasil tool searchWeb saja. Kalau teks jawaban agen sendiri ikut masuk
-// sebagai konteks, setiap klaim otomatis "didukung" dan skornya selalu 1.
-// Kosong (agen tidak mencari sama sekali) -> faithfulness melaporkan invalid, bukan fail.
 function searchEvidence(messages: AgentOutcome["messages"]): string[] {
     const evidence: string[] = [];
     for (const message of messages) {
@@ -30,10 +27,17 @@ await runEvalCli<string, AgentOutcome>({
     cases: faithfulnessCases,
     target: (input: string) => agent.generate({ prompt: input }),
     metrics: [
-        // prompts.ts:16 — tidak ada angka dari ingatan: tiap klaim harus didukung hasil search.
         faithfulness({
             model: getModel("glm-5.3-flash"),
             threshold: 0.8,
+            actual: ({ output }) => {
+                if (output.type !== "response") {
+                    throw new Error(
+                        `agent run ended as "${output.type}", no answer to judge`,
+                    );
+                }
+                return output.output;
+            },
             retrievalContext: (args) => searchEvidence(args.output.messages),
         }),
     ],
