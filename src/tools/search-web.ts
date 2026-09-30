@@ -4,7 +4,7 @@ import { tavilyClient } from "./tavily-client.js";
 
 async function search(query: string) {
     const response = await tavilyClient.search(query, {
-        searchDepth: "advanced",
+        searchDepth: "basic",
         maxResults: 5,
         includeAnswer: true,
     });
