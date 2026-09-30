@@ -8,23 +8,47 @@ const agent = createAgent();
 
 const REPORT_PATH = "report.md";
 
-await runEvalCli({
-    name: "report-check",
-    cases: reportCases,
-    target: async (input: string) => {
-        await agent.generate({ prompt: input });
-        return sandbox.runtime
-            .readTextFile({ path: REPORT_PATH })
-            .catch(() => "");
-    },
-    metrics: [
-        containsAll({
-            name: "report_file",
-            expected: ["## Answer", "## Evidence", "## Gaps"],
-        }),
-    ],
-    reporters: [lens.evalReporter({ includePayloads: true })],
-});
+try {
+    await runEvalCli({
+        name: "report-check",
+        cases: reportCases,
+        target: async (input: string) => {
+            await sandbox.runtime.exec({
+                command: "rm",
+                args: ["-f", REPORT_PATH],
+            });
+            const outcome = await agent.generate({ prompt: input });
+            const report = await sandbox.runtime
+                .readTextFile({ path: REPORT_PATH })
+                .catch(() => "");
+            return { output: report, trace: outcome.trace };
+        },
+        metrics: [
+            containsAll({
+                name: "report_file",
+                expected: ({ case: testCase }) => [
+                    "## Answer",
+                    "## Evidence",
+                    "## Gaps",
+                    String(testCase.metadata?.title ?? ""),
+                    String(testCase.metadata?.years ?? ""),
+                    String(testCase.metadata?.location ?? ""),
+                ],
+            }),
+        ],
+        reporters: [
+            lens.evalReporter({
+                includePayloads: true,
+                includeMetadata: true,
+                onMissingTrace: "throw",
+            }),
+        ],
+        exitCode: true,
+        reporterErrorPolicy: "throw",
+    });
 
-await sandbox.destroy();
-lens.flush();
+    await lens.flush();
+} finally {
+    await sandbox.destroy();
+    await lens.close();
+}
