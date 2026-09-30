@@ -9,7 +9,7 @@ if (!apiKey) {
 
 const client = new OpenAIClient({
   apiKey: apiKey,
-  baseUrl: process.env.OPENAI_BASE_URL,
+  baseUrl: process.env.OPENAI_BASE_URL || undefined,
 });
 
 export function getModel(modelId?: string) {
